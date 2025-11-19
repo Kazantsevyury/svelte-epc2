@@ -1,0 +1,42 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background: #222;
+  color: #f4f4f4;
+  line-height: 1.5;
+}
+
+/* Base reset */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Links (если будут) */
+a {
+  color: #8ea0ff;
+  text-decoration: none;
+}
+a:hover {
+  opacity: 0.8;
+}
+
+/* Remove unused default layout from template */
+#app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+/* Buttons (если появятся) */
+button {
+  border-radius: 6px;
+  border: 1px solid #555;
+  padding: 0.5em 1em;
+  background: #444;
+  color: white;
+  cursor: pointer;
+}
+button:hover {
+  background: #555;
+}
