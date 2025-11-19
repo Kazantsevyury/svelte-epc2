@@ -2,10 +2,19 @@
   import * as Plot from "@observablehq/plot";
   import { onMount } from "svelte";
   import rawData from "./ppd_complaints.json";
+  
+  const colorByRace = {
+    White: "#d62728",
+    Black: "#1f77b4",
+    Hispanic: "#ffbf00",
+    Other: "#7f7f7f"
+  };
 
   // =============================
-  // 1. Normalize Race
+  // Aggregate race data
   // =============================
+  const raceOrder = ["White", "Black", "Hispanic", "Other"];
+
   function normalizeRace(r) {
     if (!r) return "Other";
     const R = r.trim().toLowerCase();
@@ -14,11 +23,6 @@
     if (R === "hispanic" || R === "latino") return "Hispanic";
     return "Other";
   }
-
-  // =============================
-  // 2. Aggregate Data
-  // =============================
-  const raceOrder = ["White", "Black", "Hispanic", "Other"];
 
   function buildRaceStats(data) {
     const map = new Map();
@@ -48,7 +52,6 @@
       const officers = e.officers.size || 1;
       const cpo = e.complaints / officers;
       const spo = e.complaints ? e.sustained / e.complaints : 0;
-
       stats.push({
         race: e.race,
         complaints: e.complaints,
@@ -65,26 +68,10 @@
   const raceStats = buildRaceStats(rawData);
 
   // =============================
-  // 3. Colors
+  // Legend
   // =============================
-  const colorByRace = {
-    White: "#d62728",
-    Black: "#1f77b4",
-    Hispanic: "#ffbf00",
-    Other: "#7f7f7f"
-  };
-
-  // =============================
-  // 4. DOM Refs
-  // =============================
-  let bubbleChartEl;
-  let cpoChartEl;
-  let spoChartEl;
   let legendEl;
-
-  // =============================
-  // 5. Legend (placed inside bubble panel)
-  // =============================
+  
   function renderLegend() {
     legendEl.innerHTML = `
       <div style="display:flex; gap:20px; margin:6px 0 10px;">
@@ -102,8 +89,12 @@
   }
 
   // =============================
-  // 6. Render Charts
+  // Render Charts
   // =============================
+  let bubbleChartEl;
+  let cpoChartEl;
+  let spoChartEl;
+
   function renderBubbleChart() {
     bubbleChartEl.innerHTML = "";
 
@@ -118,7 +109,6 @@
       marginBottom: 60,
       style: { background: "white" },
       marks: [
-        // Center annotation
         Plot.text(
           [{
             x: (maxCpo + minCpo) / 2,
@@ -135,7 +125,6 @@
           }
         ),
 
-        // Bubbles
         Plot.dot(raceStats, {
           x: "cpo",
           y: "spo",
@@ -151,13 +140,12 @@ Complaints/Officer: ${d.cpo.toFixed(2)}
 Sustained Share: ${(d.spo * 100).toFixed(1)}%`
         }),
 
-        // FIXED LABEL OFFSET — looks clean
         Plot.text(raceStats, {
           x: "cpo",
           y: "spo",
           text: "race",
           dy: -16,
-          fontSize: 13, // unchanged
+          fontSize: 13,
           fill: "black",
           stroke: "white",
           strokeWidth: 2
@@ -307,10 +295,7 @@ Total Sustained: ${(d.complaints * d.spo).toFixed(0)}`
   <div class="row">
     <section class="panel">
       <h3>Complaints vs Sustained per Officer (by Race)</h3>
-
-      <!-- Legend placed HERE -->
       <div class="legend" bind:this={legendEl}></div>
-
       <div class="chart-container" bind:this={bubbleChartEl}></div>
     </section>
   </div>
